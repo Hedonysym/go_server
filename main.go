@@ -22,9 +22,9 @@ func main() {
 	mux := http.NewServeMux()
 	apiCfg := &apiConfig{}
 
-	mux.HandleFunc("GET /healthz", readyEndpointHandler)
-	mux.HandleFunc("GET /metrics", apiCfg.metricsHandler)
-	mux.HandleFunc("POST /reset", apiCfg.metricsResetHandler)
+	mux.HandleFunc("GET /api/healthz", readyEndpointHandler)
+	mux.HandleFunc("GET /admin/metrics", apiCfg.metricsHandler)
+	mux.HandleFunc("POST /admin/reset", apiCfg.metricsResetHandler)
 
 	server := &http.Server{
 		Addr:    ":8080",

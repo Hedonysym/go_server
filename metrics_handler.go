@@ -6,10 +6,17 @@ import (
 )
 
 func (apiCfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "plain/text; charset=utf-8")
+	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 	hits := apiCfg.fileserverhits.Load()
-	response := fmt.Sprintf(`Hits: %d`, hits)
+	response := fmt.Sprintf(
+		`<html>
+  			<body>
+   				<h1>Welcome, Chirpy Admin</h1>
+    			<p>Chirpy has been visited %d times!</p>
+  			</body>
+		</html>`,
+		hits)
 	_, err := w.Write([]byte(response))
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
