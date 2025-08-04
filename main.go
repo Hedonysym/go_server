@@ -14,7 +14,8 @@ import (
 
 type apiConfig struct {
 	fileserverhits atomic.Int32
-	dbQ            *database.Queries
+	db             *database.Queries
+	platform       string
 }
 
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
@@ -28,28 +29,31 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 func main() {
 	godotenv.Load()
 	dbUrl := os.Getenv("DB_URL")
+	platform := os.Getenv("PLATFORM")
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
-		fmt.Errorf("postgress load failed")
+		fmt.Println("postgress load failed")
 		os.Exit(1)
 	}
 	dbQueries := database.New(db)
 	mux := http.NewServeMux()
-	apiCfg := &apiConfig{
-		dbQ: dbQueries,
+	cfg := &apiConfig{
+		db:       dbQueries,
+		platform: platform,
 	}
 
 	mux.HandleFunc("GET /api/healthz", readyEndpointHandler)
-	mux.HandleFunc("GET /admin/metrics", apiCfg.metricsHandler)
-	mux.HandleFunc("POST /admin/reset", apiCfg.metricsResetHandler)
+	mux.HandleFunc("GET /admin/metrics", cfg.metricsHandler)
+	mux.HandleFunc("POST /admin/reset", cfg.metricsResetHandler)
 	mux.HandleFunc("POST /api/validate_chirp", postEndpointHandler)
+	mux.HandleFunc("POST /api/users", cfg.createUserEndpoint)
 
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: mux,
 	}
 
-	mux.Handle("/app/", apiCfg.middlewareMetricsInc(
+	mux.Handle("/app/", cfg.middlewareMetricsInc(
 		http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 
 	err = server.ListenAndServe()

@@ -24,7 +24,12 @@ func (apiCfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (apiCfg *apiConfig) metricsResetHandler(w http.ResponseWriter, r *http.Request) {
+	if apiCfg.platform != "dev" {
+		respondWithError(w, 403, "Forbidden")
+		return
+	}
 	apiCfg.fileserverhits.Store(0)
+	apiCfg.db.ResetUsers(r.Context())
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	_, err := w.Write([]byte("Hits reset to 0"))
