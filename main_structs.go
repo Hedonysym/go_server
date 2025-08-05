@@ -28,3 +28,8 @@ type apiConfig struct {
 	db             *database.Queries
 	platform       string
 }
+
+type userLogin struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

@@ -18,6 +18,15 @@ func chirpReformatter(dat database.Chirp) Chirp {
 	}
 }
 
+func userReformatter(dat database.User) User {
+	return User{
+		Id:         dat.ID,
+		Created_at: dat.CreatedAt,
+		Updated_at: dat.UpdatedAt,
+		Email:      dat.Email,
+	}
+}
+
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

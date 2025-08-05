@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Hedonysym/go_server/internal/auth"
 	"github.com/Hedonysym/go_server/internal/database"
 	"github.com/google/uuid"
 )
@@ -13,22 +14,26 @@ import (
 func (cfg *apiConfig) createUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	type userEmail struct {
-		Email string `json:"email"`
-	}
 	decoder := json.NewDecoder(r.Body)
-	email := userEmail{}
-	err := decoder.Decode(&email)
+	login := userLogin{}
+	err := decoder.Decode(&login)
 	if err != nil {
 		respondWithError(w, 400, "Bad Request")
 		return
 	}
 
+	hash, err := auth.HashPassword(login.Password)
+	if err != nil {
+		respondWithError(w, 403, "invalid password")
+		return
+	}
+
 	params := database.CreateUserParams{
-		ID:        uuid.New(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Email:     email.Email,
+		ID:             uuid.New(),
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+		Email:          login.Email,
+		HashedPassword: hash,
 	}
 
 	user, err := cfg.db.CreateUser(r.Context(), params)
