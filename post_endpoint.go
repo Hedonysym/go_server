@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
+
+	"github.com/Hedonysym/go_server/internal/database"
+	"github.com/google/uuid"
 )
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
@@ -41,24 +45,36 @@ func profanityScrubber(msg string) string {
 	return strings.Join(words, " ")
 }
 
-func postEndpointHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) postEndpointHandler(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Body string `json:"body"`
+		Body   string    `json:"body"`
+		Userid uuid.UUID `json:"user_id"`
 	}
 	decoder := json.NewDecoder(r.Body)
-	params := parameters{}
-	err := decoder.Decode(&params)
+	req := parameters{}
+	err := decoder.Decode(&req)
 	if err != nil {
 		respondWithError(w, 400, "Something went wrong")
 		return
 	}
-	if len(params.Body) > 140 {
+	if len(req.Body) > 140 {
 		respondWithError(w, 400, "Chirp too long")
 		return
 	}
-	type Response struct {
-		Cleaned string `json:"cleaned_body"`
+	cleaned := profanityScrubber(req.Body)
+	params := database.PostChirpParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Body:      cleaned,
+		UserID:    req.Userid,
 	}
-	cleaned := profanityScrubber(params.Body)
-	respondWithJSON(w, 200, Response{Cleaned: cleaned})
+	chirp, err := cfg.db.PostChirp(r.Context(), params)
+	respondWithJSON(w, 201, Chirp{
+		Id:         chirp.ID,
+		Created_at: chirp.CreatedAt,
+		Updated_at: chirp.UpdatedAt,
+		Body:       chirp.Body,
+		User_id:    chirp.UserID,
+	})
 }
