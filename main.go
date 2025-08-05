@@ -5,26 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"sync/atomic"
 
 	"github.com/Hedonysym/go_server/internal/database"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
-
-type apiConfig struct {
-	fileserverhits atomic.Int32
-	db             *database.Queries
-	platform       string
-}
-
-func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.fileserverhits.Add(1)
-		next.ServeHTTP(w, r)
-	})
-}
 
 func main() {
 	godotenv.Load()
@@ -48,6 +33,7 @@ func main() {
 	mux.HandleFunc("POST /api/chirps", cfg.postEndpointHandler)
 	mux.HandleFunc("POST /api/users", cfg.createUserEndpoint)
 	mux.HandleFunc("GET /api/chirps", cfg.allChirpsEndpoint)
+	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.getChirpEndpoint)
 
 	server := &http.Server{
 		Addr:    ":8080",

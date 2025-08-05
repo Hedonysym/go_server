@@ -1,8 +1,10 @@
 package main
 
 import (
+	"sync/atomic"
 	"time"
 
+	"github.com/Hedonysym/go_server/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -19,4 +21,10 @@ type Chirp struct {
 	Updated_at time.Time `json:"updated_at"`
 	Body       string    `json:"body"`
 	User_id    uuid.UUID `json:"user_id"`
+}
+
+type apiConfig struct {
+	fileserverhits atomic.Int32
+	db             *database.Queries
+	platform       string
 }

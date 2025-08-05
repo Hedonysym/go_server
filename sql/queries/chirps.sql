@@ -6,3 +6,7 @@ returning *;
 -- name: AllChirps :many
 select * from chirps
 order by created_at;
+
+-- name: GetChirpByChirpId :one
+select * from chirps
+where id = $1;
