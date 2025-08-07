@@ -16,7 +16,7 @@ func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (str
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiresIn)),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := token.SignedString(tokenSecret)
+	signed, err := token.SignedString([]byte(tokenSecret))
 	if err != nil {
 		return "", fmt.Errorf("jwt err: %v", err)
 	}

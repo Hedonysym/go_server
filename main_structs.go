@@ -13,6 +13,7 @@ type User struct {
 	Created_at time.Time `json:"created_at"`
 	Updated_at time.Time `json:"updated_at"`
 	Email      string    `json:"email"`
+	Token      string    `json:"token"`
 }
 
 type Chirp struct {
@@ -27,9 +28,11 @@ type apiConfig struct {
 	fileserverhits atomic.Int32
 	db             *database.Queries
 	platform       string
+	secret         string
 }
 
 type userLogin struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email            string `json:"email"`
+	Password         string `json:"password"`
+	ExpiresInSeconds int    `json:"expires_in_seconds"`
 }

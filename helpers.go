@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Hedonysym/go_server/internal/database"
 )
@@ -18,12 +19,22 @@ func chirpReformatter(dat database.Chirp) Chirp {
 	}
 }
 
-func userReformatter(dat database.User) User {
-	return User{
-		Id:         dat.ID,
-		Created_at: dat.CreatedAt,
-		Updated_at: dat.UpdatedAt,
-		Email:      dat.Email,
+func userReformatter(dat database.User, token *string) User {
+	if token != nil {
+		return User{
+			Id:         dat.ID,
+			Created_at: dat.CreatedAt,
+			Updated_at: dat.UpdatedAt,
+			Email:      dat.Email,
+			Token:      *token,
+		}
+	} else {
+		return User{
+			Id:         dat.ID,
+			Created_at: dat.CreatedAt,
+			Updated_at: dat.UpdatedAt,
+			Email:      dat.Email,
+		}
 	}
 }
 
@@ -68,4 +79,11 @@ func profanityScrubber(msg string) string {
 		}
 	}
 	return strings.Join(words, " ")
+}
+
+func getExpirationInSecs(secs int) time.Duration {
+	if secs == 0 || secs > 3600 {
+		return time.Duration(3600) * time.Second
+	}
+	return time.Duration(secs) * time.Second
 }

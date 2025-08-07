@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Hedonysym/go_server/internal/auth"
@@ -27,6 +28,13 @@ func (cfg *apiConfig) userLoginEndpoint(w http.ResponseWriter, r *http.Request) 
 		respondWithError(w, 401, "incorrect email or password")
 		return
 	}
+	expTime := getExpirationInSecs(login.ExpiresInSeconds)
 
-	respondWithJSON(w, 200, userReformatter(user))
+	token, err := auth.MakeJWT(user.ID, cfg.secret, expTime)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("token generation error: %v", err))
+		return
+	}
+
+	respondWithJSON(w, 200, userReformatter(user, &token))
 }

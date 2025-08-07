@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -9,46 +8,62 @@ import (
 )
 
 func JWTTest1(t *testing.T) {
-	ogId := uuid.New()
-	token, err := MakeJWT(ogId, "mah balls", time.Duration(100000))
+	pass, err := HashPassword("mah balls")
 	if err != nil {
-		fmt.Errorf("make token failed: %v", err)
+		t.Errorf("hash error: %v", err)
 	}
-	newId, err := ValidateJWT(token, "mah balls")
+	ogId := uuid.New()
+	token, err := MakeJWT(ogId, pass, time.Duration(100000))
 	if err != nil {
-		fmt.Errorf("validate token failed: %v", err)
+		t.Errorf("make token failed: %v", err)
+	}
+	newId, err := ValidateJWT(token, pass)
+	if err != nil {
+		t.Errorf("validate token failed: %v", err)
 	}
 	if ogId != newId {
-		fmt.Errorf("id mismatch: %v, %v", ogId, newId)
+		t.Errorf("id mismatch: %v, %v", ogId, newId)
 	}
 }
 
 func JWTTest2(t *testing.T) {
-	ogId := uuid.New()
-	token, err := MakeJWT(ogId, "mah balls", time.Duration(-500))
+	pass, err := HashPassword("mah balls")
 	if err != nil {
-		fmt.Errorf("make token failed: %v", err)
+		t.Errorf("hash error: %v", err)
 	}
-	newId, err := ValidateJWT(token, "mah balls")
+	ogId := uuid.New()
+	token, err := MakeJWT(ogId, pass, time.Duration(-500))
+	if err != nil {
+		t.Errorf("make token failed: %v", err)
+	}
+	newId, err := ValidateJWT(token, pass)
 	if err == nil {
-		fmt.Errorf("validate token failed: %v", err)
+		t.Errorf("validate token failed: %v", err)
 	}
 	if ogId != newId {
-		fmt.Errorf("id mismatch: %v, %v", ogId, newId)
+		t.Errorf("id mismatch: %v, %v", ogId, newId)
 	}
 }
 
 func JWTTest3(t *testing.T) {
-	ogId := uuid.New()
-	token, err := MakeJWT(ogId, "mah balls", time.Duration(100000))
+	pass, err := HashPassword("mah balls")
 	if err != nil {
-		fmt.Errorf("make token failed: %v", err)
+		t.Errorf("hash error: %v", err)
 	}
-	newId, err := ValidateJWT(token, "mah dick")
+	pass2, err := HashPassword("mah dick")
+	if err != nil {
+		t.Errorf("hash error: %v", err)
+	}
+	ogId := uuid.New()
+	token, err := MakeJWT(ogId, pass, time.Duration(100000))
+	if err != nil {
+		t.Errorf("make token failed: %v", err)
+	}
+	newId, err := ValidateJWT(token, pass2)
 	if err == nil {
-		fmt.Errorf("validate token failed: %v", err)
+		t.Errorf("validate token failed: %v", err)
 	}
 	if ogId != newId {
-		fmt.Errorf("id mismatch: %v, %v", ogId, newId)
+		t.Errorf("id mismatch: %v, %v", ogId, newId)
 	}
 }

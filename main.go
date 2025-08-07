@@ -15,6 +15,7 @@ func main() {
 	godotenv.Load()
 	dbUrl := os.Getenv("DB_URL")
 	platform := os.Getenv("PLATFORM")
+	secret := os.Getenv("SECRET")
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		fmt.Println("postgress load failed")
@@ -25,6 +26,7 @@ func main() {
 	cfg := &apiConfig{
 		db:       dbQueries,
 		platform: platform,
+		secret:   secret,
 	}
 
 	mux.HandleFunc("GET /api/healthz", readyEndpointHandler)
