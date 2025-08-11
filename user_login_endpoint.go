@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Hedonysym/go_server/internal/auth"
+	"github.com/Hedonysym/go_server/internal/database"
 )
 
 func (cfg *apiConfig) userLoginEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +37,24 @@ func (cfg *apiConfig) userLoginEndpoint(w http.ResponseWriter, r *http.Request) 
 		respondWithError(w, 400, fmt.Sprintf("token generation error: %v", err))
 		return
 	}
+	refTString, err := auth.MakeRefreshToken()
+	if err != nil {
+		respondWithError(w, 400, "something is wrong ig, this error should never happen")
+	}
 
-	respondWithJSON(w, 200, userReformatter(user, &token))
+	refreshParams := database.NewRefreshTokenParams{
+		Token:     refTString,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		ExpiresAt: time.Now().AddDate(0, 0, 60),
+	}
+
+	_, err = cfg.db.NewRefreshToken(r.Context(), refreshParams)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("bad refresh token: %v", err))
+		return
+	}
+
+	respondWithJSON(w, 200, userReformatter(user, &token, &refTString))
 }

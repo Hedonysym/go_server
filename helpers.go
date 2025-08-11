@@ -19,14 +19,15 @@ func chirpReformatter(dat database.Chirp) Chirp {
 	}
 }
 
-func userReformatter(dat database.User, token *string) User {
+func userReformatter(dat database.User, token *string, refToken *string) User {
 	if token != nil {
 		return User{
-			Id:         dat.ID,
-			Created_at: dat.CreatedAt,
-			Updated_at: dat.UpdatedAt,
-			Email:      dat.Email,
-			Token:      *token,
+			Id:            dat.ID,
+			Created_at:    dat.CreatedAt,
+			Updated_at:    dat.UpdatedAt,
+			Email:         dat.Email,
+			Token:         *token,
+			Refresh_token: *refToken,
 		}
 	} else {
 		return User{
