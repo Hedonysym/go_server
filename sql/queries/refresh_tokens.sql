@@ -1,6 +1,8 @@
 -- name: NewRefreshToken :one
 insert into refresh_tokens (token, created_at, updated_at, user_id, expires_at)
 values ($1, $2, $3, $4, $5)
+on conflict (token) do update
+set updated_at = $3, expires_at = $5
 returning *;
 
 -- name: GetUserByRefreshToken :one
