@@ -4,10 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Hedonysym/go_server/internal/auth"
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) chirpyRedWebhook(w http.ResponseWriter, r *http.Request) {
+	polkaKey, err := auth.GetPolkaAuth(r.Header)
+	if err != nil || polkaKey != cfg.polka_key {
+		w.WriteHeader(401)
+		return
+	}
+
 	type Request struct {
 		Event string `json:"event"`
 		Data  struct {
@@ -17,7 +24,7 @@ func (cfg *apiConfig) chirpyRedWebhook(w http.ResponseWriter, r *http.Request) {
 
 	req := Request{}
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&req)
+	err = decoder.Decode(&req)
 	if err != nil {
 		w.WriteHeader(400)
 		return

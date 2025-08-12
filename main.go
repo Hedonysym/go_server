@@ -16,6 +16,7 @@ func main() {
 	dbUrl := os.Getenv("DB_URL")
 	platform := os.Getenv("PLATFORM")
 	secret := os.Getenv("SECRET")
+	polkaKey := os.Getenv("POLKA_KEY")
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		fmt.Println("postgress load failed")
@@ -24,9 +25,10 @@ func main() {
 	dbQueries := database.New(db)
 	mux := http.NewServeMux()
 	cfg := &apiConfig{
-		db:       dbQueries,
-		platform: platform,
-		secret:   secret,
+		db:        dbQueries,
+		platform:  platform,
+		secret:    secret,
+		polka_key: polkaKey,
 	}
 
 	mux.HandleFunc("GET /api/healthz", readyEndpointHandler)
