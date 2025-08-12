@@ -15,3 +15,8 @@ update users
 set email = $2, hashed_password = $3
 where id = $1
 returning *;
+
+-- name: UpgradeUserToRed :exec
+update users 
+set is_chirpy_red = true
+where id = $1;

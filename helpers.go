@@ -26,15 +26,17 @@ func userReformatter(dat database.User, token *string, refToken *string) User {
 			Created_at:    dat.CreatedAt,
 			Updated_at:    dat.UpdatedAt,
 			Email:         dat.Email,
+			Is_chirpy_red: dat.IsChirpyRed.Bool,
 			Token:         *token,
 			Refresh_token: *refToken,
 		}
 	} else {
 		return User{
-			Id:         dat.ID,
-			Created_at: dat.CreatedAt,
-			Updated_at: dat.UpdatedAt,
-			Email:      dat.Email,
+			Id:            dat.ID,
+			Created_at:    dat.CreatedAt,
+			Updated_at:    dat.UpdatedAt,
+			Email:         dat.Email,
+			Is_chirpy_red: dat.IsChirpyRed.Bool,
 		}
 	}
 }

@@ -41,6 +41,7 @@ func main() {
 	mux.HandleFunc("POST /api/revoke", cfg.revokeTokenEndpoint)
 	mux.HandleFunc("PUT /api/users", cfg.updateUserEndpoint)
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.deleteChirpEndpoint)
+	mux.HandleFunc("POST /api/polka/webhooks", cfg.chirpyRedWebhook)
 
 	server := &http.Server{
 		Addr:    ":8080",
